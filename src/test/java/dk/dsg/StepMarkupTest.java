@@ -17,6 +17,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
+import org.springframework.util.StringUtils;
 
 @RunWith(Parameterized.class)
 public class StepMarkupTest {
@@ -32,7 +33,12 @@ public class StepMarkupTest {
 		final String input = Resource.input.read(corpus);
 		final String expected = Resource.expected.read(corpus);
 
-		Assert.assertEquals(expected, StepMarkup.parse(input));
+		final StepMarkup stepMarkup = new StepMarkup();
+
+		Assert.assertEquals(expected, stepMarkup.parse(input));
+
+		final int hrefs = StringUtils.countOccurrencesOf(input, " href=\"");
+		Assert.assertEquals(hrefs, stepMarkup.anchors().size());
 	}
 
 	@Parameterized.Parameters(name = "{index}: {0}")

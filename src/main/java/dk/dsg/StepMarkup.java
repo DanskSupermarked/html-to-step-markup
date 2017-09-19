@@ -1,5 +1,7 @@
 package dk.dsg;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.annotation.Nullable;
@@ -7,6 +9,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.NodeTraversor;
 
 public final class StepMarkup {
@@ -24,7 +27,14 @@ public final class StepMarkup {
 	private static final Pattern PAT_EXCESSIVE_LINEBREAK =
 			Pattern.compile("(?:<return/>\\n*){3}");
 
-	private StepMarkup() {
+	@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
+	private final List<Anchor> anchors = new ArrayList<>();
+
+	@SuppressWarnings({
+			"PMD.UnnecessaryConstructor",
+			"PMD.UncommentedEmptyConstructor",
+	})
+	public StepMarkup() {
 	}
 
 	/**
@@ -32,11 +42,14 @@ public final class StepMarkup {
 	 * markup primitives. HTML without equivalent STEP-markup, such as anchors
 	 * and tables, uses other primitives to retain legibility.
 	 *
+	 * <p>All encountered anchors will be aggregated in {@link #anchors()}
+	 *
 	 * @param escapedHtml  possibly-escaped HTML to transform
 	 * @return valid STEP-markup, or null if {@code escapedHtml} was null
 	 */
+	@SuppressWarnings("PMD.AvoidInstantiatingObjectsInLoops")
 	@Nullable
-	public static String parse(final String escapedHtml) {
+	public String parse(final String escapedHtml) {
 		if (escapedHtml == null) {
 			return null;
 		}
@@ -46,6 +59,11 @@ public final class StepMarkup {
 		final StringBuilder buf = new StringBuilder();
 		final NodeTraversor trav = new NodeTraversor(new StepMarkupNodeVisitor(buf));
 		trav.traverse(parse);
+
+		for (final Element anchor : parse.getElementsByTag("a")) {
+			anchors.add(new Anchor(anchor.text(), anchor.attr("href").trim()));
+		}
+
 		final String trimmed = PAT_TRIM_LINEBREAK
 				.matcher(buf)
 				.replaceAll("");
@@ -55,4 +73,26 @@ public final class StepMarkup {
 		return StringEscapeUtils.unescapeHtml(unescaped);
 	}
 
+	/**
+	 * All anchors encountered since the first invocation of {@code parse}.
+	 *
+	 * @return a safe copy of all anchors
+	 * @see Anchor
+	 */
+	public List<Anchor> anchors() {
+		return new ArrayList<>(anchors);
+	}
+
+	/**
+	 * An immutable representation of an anchor tag with hyperlink and text.
+	 */
+	public final class Anchor {
+		public final String text;
+		public final String href;
+
+		public Anchor(final String text, final String href) {
+			this.text = text;
+			this.href = href;
+		}
+	}
 }

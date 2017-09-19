@@ -1,6 +1,7 @@
 package dk.dsg;
 
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.Node;
@@ -18,8 +19,6 @@ import org.jsoup.select.NodeVisitor;
 
 	private static final String UNDERLINED_START = "<underlined>";
 	private static final String UNDERLINED_END = "</underlined>";
-
-	private static final String BLOCKQUOTE_START = "&amp;gt; ";
 
 	// Semantic significance of linefeed unknown.
 	private static final String UNORDERED_LIST_START = "<bulletlist>\n";
@@ -40,6 +39,13 @@ import org.jsoup.select.NodeVisitor;
 	private static final Tag HTML_P = Tag.valueOf("p");
 	private static final Tag HTML_BR = Tag.valueOf("br");
 
+	/**
+	 * Pattern for the http/s scheme and, because lazy, the optional www
+	 * subdomain, for uniformly substituting with {@code www.}.
+	 */
+	private static final Pattern LINK_SCHEME =
+			Pattern.compile("^https?://(?:www.)?");
+
 	// Yes, it is possible to abuse buffers. No, I'm not abusing it.
 	@SuppressWarnings("PMD.AvoidStringBufferField")
 	private final StringBuilder buf;
@@ -49,6 +55,14 @@ import org.jsoup.select.NodeVisitor;
 	 * dashes and UTF-8 bullet characters.
 	 */
 	private boolean inNaiveList;
+
+	/**
+	 * An "ugly href" is an href pointing to an internal link other than a
+	 * buying guide, for instance a document asset. We want to strip those from
+	 * the output. In general such links are less valuable than buying guides
+	 * and they can't be made to look "nice", for some definition thereof.
+	 */
+	private boolean inUglyHref;
 
 	/* package */ StepMarkupNodeVisitor(final StringBuilder buf) {
 		this.buf = buf;
@@ -60,6 +74,8 @@ import org.jsoup.select.NodeVisitor;
 	@SuppressWarnings({
 			"PMD.CyclomaticComplexity",
 			"PMD.SwitchStmtsShouldHaveDefault",
+			 // No, "".startsWith('x') is not equivalent to "".charAt(0) == 'x'.
+			"PMD.SimplifyStartsWith",
 	})
 	@Override
 	public void head(final Node node, final int depth) {
@@ -121,7 +137,7 @@ import org.jsoup.select.NodeVisitor;
 							.append('>');
 					break;
 				case "blockquote":
-					buf.append(BLOCKQUOTE_START);
+					linebreak();
 					break;
 				case "caption":
 					buf.append(ITALIC_START);
@@ -132,8 +148,12 @@ import org.jsoup.select.NodeVisitor;
 				case "address":
 					linebreak();
 					break;
+				case "a":
+					final String href = element.attr("href");
+					inUglyHref = href.startsWith("/") && !href.startsWith("/gd/");
+					break;
 			}
-		} else if (node instanceof TextNode) {
+		} else if (node instanceof TextNode && !inUglyHref) {
 			final String text = aggressiveTrim(((TextNode) node).text());
 			if (text.isEmpty()) {
 				return;
@@ -248,6 +268,7 @@ import org.jsoup.select.NodeVisitor;
 					break;
 				case "blockquote":
 					linebreak();
+					linebreak();
 					break;
 				case "caption":
 					buf.append(ITALIC_END);
@@ -263,6 +284,7 @@ import org.jsoup.select.NodeVisitor;
 					}
 					break;
 				case "address":
+					linebreak();
 					linebreak();
 					break;
 			}
@@ -325,16 +347,32 @@ import org.jsoup.select.NodeVisitor;
 	}
 
 	/**
-	 * Rewrites anchor href attribute as {@code " <href-value>"}
-	 * We need to escape {@code <} in STEP markup, and because we un-escape all
-	 * text as the very last step, we need to escape the escaping {@code &}.
+	 * Rewrites the anchor href attribute.
+	 *
+	 * <ul>
+	 * <li>Values starting with {@code /gd/} are buying guides. We would like to
+	 * preserve such links but in a friendly manner. The best we can do is to
+	 * make them copy-/paste-friendly, but since we can't (won't) tell where
+	 * the guide comes from we assume it to be Bilka.dk becaues of its size.
+	 * Consequently, we prefix {@code www.bilka.dk}.
+	 * <li>Any remaining internal links and link texts we toss because
+	 * "they look ugly."
+	 * <li>We strip the http/s scheme because "it looks ugly" and many external
+	 * links to Bilka.dk use legacy http scheme anyway.
+	 * </ul>
 	 *
 	 * @param element  the anchor element
 	 */
 	private void href(final Element element) {
-		buf.append(" &amp;lt;")
-				.append(element.attr("href"))
-				.append("&amp;gt;");
+		final String href = element.attr("href").trim();
+		if (href.startsWith("/gd/")) {
+			// Assume all buying guides are on Bilka.dk and make them copyable.
+			// Bilka.dk is bigger and føtex doesn't use guides much if at all.
+			buf.append(" www.bilka.dk").append(href);
+		} else if (!inUglyHref) {
+			buf.append(' ')
+					.append(LINK_SCHEME.matcher(href).replaceFirst("www."));
+		}
 	}
 
 	/**
