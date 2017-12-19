@@ -1,7 +1,7 @@
-<bold>ZyXEL NWD2205 - Ultra Compact Wireless N300 USB Adapter</bold><return/>
-Ultra-kompakt design for optimal bærbarhed 802.11n overholdelse dataoverførselshastigheder på op til 300 Mbps * Soft AP funktion til deling af trådløs internetadgang Wi-Fi WMM certificeret for prioritering multimediestreaming One-touch WPS-knappen for nem trådløs sikkerhed opsætning. Grøn adapter sparer energi ubesværet .<return/>
-<return/>
-<bold>Specifikationer:</bold> <return/>
+<bold>ZyXEL NWD2205 - Ultra Compact Wireless N300 USB Adapter</bold>
+Ultra-kompakt design for optimal bærbarhed 802.11n overholdelse dataoverførselshastigheder på op til 300 Mbps * Soft AP funktion til deling af trådløs internetadgang Wi-Fi WMM certificeret for prioritering multimediestreaming One-touch WPS-knappen for nem trådløs sikkerhed opsætning. Grøn adapter sparer energi ubesværet .
+
+<bold>Specifikationer:</bold>
 <bulletlist>
 <bullet>WLAN: Nej</bullet>
 <bullet>Trådløse protokoller: IEEE 802.11b/g, IEEE 802.11n</bullet>

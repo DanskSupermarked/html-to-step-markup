@@ -1,17 +1,17 @@
-Olivers Fisk Classic til katte er et sundt og velsmagende, komplet og afbalanceret kvalitetsfoder til voksne katte, som elsker fisk.Olivers Fisk Classic har et højt indhold af laks og et afbalanceret indhold af omega-3 og omega-6 fedtsyrer. Olivers Fisk Classic er formuleret ifølge Olivers høje kvalitetskrav, og indeholder ud over den korrekte balance af alle de vigtige næringsstoffer, som katte har behov for hver eneste dag, yderligere næringsstoffer, som Olivers mener gavner din kats sundhed. Foderet er derfor optimeret med fiskeolie og funktionelle fibre.<return/>
-<return/>
-Et kostskifte kan være voldsomt for kattens mave. Derfor anbefaler vi, at katten gradvist over 3-7 dage vænner sig til sig vid det nye foder ved at blande det nye foder med det gamle. I de første dage med størst andel af det gamle foder og til slut omvendt.<return/>
-<return/>
-Olivers Fisk Classic er fremstillet af de bedste ingredienser af høj kvalitet. Hos Olivers tilsætter vi naturligvis ingen kunstige farvestoffer, smagsstoffer eller konserveringsmidler til vores foder.<return/>
-<return/>
-<bold>Fodervejledning:</bold> <return/>
-<bold>Kattens vægt (kg)</bold> | <bold>Foder (gram pr. dag)</bold><return/>
-2 | 40<return/>
-3 | 55<return/>
-4 | 65<return/>
-5 | 75<return/>
-6 | 85<return/>
-7 | 95<return/>
-8 | 105<return/>
-9 | 110<return/>
+Olivers Fisk Classic til katte er et sundt og velsmagende, komplet og afbalanceret kvalitetsfoder til voksne katte, som elsker fisk.Olivers Fisk Classic har et højt indhold af laks og et afbalanceret indhold af omega-3 og omega-6 fedtsyrer. Olivers Fisk Classic er formuleret ifølge Olivers høje kvalitetskrav, og indeholder ud over den korrekte balance af alle de vigtige næringsstoffer, som katte har behov for hver eneste dag, yderligere næringsstoffer, som Olivers mener gavner din kats sundhed. Foderet er derfor optimeret med fiskeolie og funktionelle fibre.
+
+Et kostskifte kan være voldsomt for kattens mave. Derfor anbefaler vi, at katten gradvist over 3-7 dage vænner sig til sig vid det nye foder ved at blande det nye foder med det gamle. I de første dage med størst andel af det gamle foder og til slut omvendt.
+
+Olivers Fisk Classic er fremstillet af de bedste ingredienser af høj kvalitet. Hos Olivers tilsætter vi naturligvis ingen kunstige farvestoffer, smagsstoffer eller konserveringsmidler til vores foder.
+
+<bold>Fodervejledning:</bold>
+<bold>Kattens vægt (kg)</bold> | <bold>Foder (gram pr. dag)</bold>
+2 | 40
+3 | 55
+4 | 65
+5 | 75
+6 | 85
+7 | 95
+8 | 105
+9 | 110
 10 | 120

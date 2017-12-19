@@ -19,13 +19,33 @@ public final class StepMarkup {
 	 * Instead of eliminating those one by one, blow them away with a cannon.
 	 */
 	private static final Pattern PAT_TRIM_LINEBREAK =
-			Pattern.compile("(?:^<return/>\\n*)+|(?:<return/>\\n*)+$");
+			Pattern.compile("(?:^\\n)+|(?:\\n)+$");
 
 	/**
 	 * Some edge-cases generate undesirable repeat linebreaks.
 	 */
 	private static final Pattern PAT_EXCESSIVE_LINEBREAK =
-			Pattern.compile("(?:<return/>\\n*){3}");
+			Pattern.compile("(?:\\n){3}");
+
+	/**
+	 * Destroy all trailing whitespace.
+	 */
+	private static final Pattern WHITESPACE_KILLER =
+			Pattern.compile(" +\\n");
+
+	/**
+     *	Bullet lists must not be tailed by excessive newlines.
+	 */
+	 private static final Pattern PRETTIFY_BULLETELEMENTS =
+			Pattern.compile("\\n\\n</bulletlist>");
+
+	/**
+	 * Anytime there is a 'Allowed' block element preceded by one ore more newlines.
+	 * Do some magic.
+	 * This is a selecting regex. Please see implementation.
+	 */
+	private static final Pattern PREBLOCK_PURGER =
+			 Pattern.compile("(?:\\n)+((<H[1-8]>)|(<bulletlist>))+");
 
 	@SuppressWarnings("PMD.AvoidFieldNameMatchingMethodName")
 	private final List<Anchor> anchors = new ArrayList<>();
@@ -67,10 +87,20 @@ public final class StepMarkup {
 		final String trimmed = PAT_TRIM_LINEBREAK
 				.matcher(buf)
 				.replaceAll("");
-		final String unescaped = PAT_EXCESSIVE_LINEBREAK
-				.matcher(trimmed).
-				replaceAll("<return/>\n<return/>\n");
-		return StringEscapeUtils.unescapeHtml(unescaped);
+		final String delined = PAT_EXCESSIVE_LINEBREAK
+				.matcher(trimmed)
+				.replaceAll("\n\n");
+		final String whitespaceNuked = WHITESPACE_KILLER
+				.matcher(delined)
+				.replaceAll("\n");
+		final String prettiedBullets = PRETTIFY_BULLETELEMENTS
+				.matcher(whitespaceNuked)
+				.replaceAll("\n</bulletlist>");
+		//Selecting Regex. Find all instances that match. Replace with the matched from position 2.
+		final String purgedBlock = PREBLOCK_PURGER
+				.matcher(prettiedBullets).replaceAll("\n$1");
+
+		return StringEscapeUtils.unescapeHtml(purgedBlock);
 	}
 
 	/**

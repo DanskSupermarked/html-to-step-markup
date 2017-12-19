@@ -22,7 +22,7 @@ import org.jsoup.select.NodeVisitor;
 
 	// Semantic significance of linefeed unknown.
 	private static final String UNORDERED_LIST_START = "<bulletlist>\n";
-	private static final String UNORDERED_LIST_END = "</bulletlist>";
+	private static final String UNORDERED_LIST_END = "</bulletlist>\n";
 
 	private static final String UNORDERED_LIST_ITEM_START = "<bullet>";
 	// Semantically-significant linefeed.
@@ -166,7 +166,7 @@ import org.jsoup.select.NodeVisitor;
 			if (firstChar == '\u2022' || firstChar == '-') {
 				naiveListItem(text);
 			} else {
-				naiveListEnd(node);
+				naiveListEnd();
 
 				if (firstChar != '.') {
 					correctInlineSpacingEnd(node);
@@ -223,23 +223,28 @@ import org.jsoup.select.NodeVisitor;
 					}
 					break;
 				case "p":
-					// Don't break if <p> is the final element
+					//Its better to be consistent and fix it later than have a massive logic tree.
+					linebreak();
+					// Don't linebreak if <p> is the final element.
 					if (nextElement != null) {
-						// Double-break between <p>s.
 						if (HTML_P == nextElement.tag()) {
-							// Don't break if the next <p> is empty.
+							// Don't linebreak if the next <p> is empty.
 							// Element::hasText is too conservative.
 							if (text.isEmpty()) {
 								break;
 							}
+							//If the next element is a "p" tag
+							linebreak();
+							//If the next element is not a "p" you end up here.
+							//Check if the next element is NOT a block element.
+						} else if (!isDefinedAsPIMBlockElement(nextElement.tag())) {
 							linebreak();
 						}
-						linebreak();
 					}
-					// If the naive list is the last non-whitespace content
+					// If the naive list is the last non-whitespace content.
 					// we won't see more content to trigger list closure.
 					// In that case, force closure.
-					naiveListEnd(element);
+					naiveListEnd();
 					break;
 				case "li":
 					buf.append(UNORDERED_LIST_ITEM_END);
@@ -247,7 +252,7 @@ import org.jsoup.select.NodeVisitor;
 				case "ol":
 					// Fall through.
 				case "ul":
-					endList(element);
+					endList();
 					break;
 				case "sup":
 					buf.append(SUPERSCRIPT_END);
@@ -382,7 +387,7 @@ import org.jsoup.select.NodeVisitor;
 	 *
 	 * @param item  the non-null list item
 	 * @see #naiveListStart()
-	 * @see #naiveListEnd(Node)
+	 * @see #naiveListEnd()
 	 */
 	private void naiveListItem(final String item) {
 		naiveListStart();
@@ -397,25 +402,40 @@ import org.jsoup.select.NodeVisitor;
 		}
 	}
 
-	private void naiveListEnd(final Node node) {
+	private void naiveListEnd() {
 		if (inNaiveList) {
-			endList(node);
+			endList();
 			inNaiveList = false;
 		}
 	}
 
-	private void endList(final Node node) {
+	private void endList() {
 		buf.append(UNORDERED_LIST_END);
-		// Assumption: if more content follows, ensure linebreak.
-		if (node.parent() != null && node.nextSibling() != null) {
-			linebreak();
-		}
 	}
 
 	private void linebreak() {
 		// This trailing linefeed is purely for legibility. STEP currently
 		// strips most linefeeds, although a problem with the STEP Web UI's
 		// Enter key may cause that to change.
-		buf.append("<return/>\n");
+		buf.append('\n');
+	}
+
+	private boolean isDefinedAsPIMBlockElement(final Tag elementTag) {
+		switch (elementTag.getName()) {
+			case "h1":
+			case "h2":
+			case "h3":
+			case "h4":
+			case "h5":
+			case "h6":
+			case "ul":
+			case "li":
+			case "il":
+			case "table":
+				return true;
+			default:
+				return false;
+
+		}
 	}
 }
