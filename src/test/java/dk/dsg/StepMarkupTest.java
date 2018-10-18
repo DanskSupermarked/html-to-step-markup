@@ -17,7 +17,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
-import org.springframework.util.StringUtils;
 
 @RunWith(Parameterized.class)
 public class StepMarkupTest {
@@ -37,7 +36,7 @@ public class StepMarkupTest {
 
 		Assert.assertEquals(expected, stepMarkup.parse(input));
 
-		final int hrefs = StringUtils.countOccurrencesOf(input, " href=\"");
+		final int hrefs = countOccurrencesOf(input, " href=\"");
 		Assert.assertEquals(hrefs, stepMarkup.anchors().size());
 	}
 
@@ -81,5 +80,18 @@ public class StepMarkupTest {
 				return reader.lines().collect(Collectors.joining("\n"));
 			}
 		}
+	}
+
+	private static int countOccurrencesOf(
+			final String haystack,
+			final String needle) {
+		int count = 0;
+		int from = 0;
+		int idx;
+		while ((idx = haystack.indexOf(needle, from)) > -1) {
+			++count;
+			from = idx + needle.length();
+		}
+		return count;
 	}
 }
